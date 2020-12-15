@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function NotesScreen({ navigation, route }) {
   const [notes, setNotes] = useState([]);
@@ -17,8 +17,8 @@ export default function NotesScreen({ navigation, route }) {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity onPress={addNote}>
-          <Ionicons
-            name='ios-create-outline'
+          <MaterialCommunityIcons
+            name='plus-circle'
             size={30}
             color='black'
             style={{
@@ -77,8 +77,32 @@ export default function NotesScreen({ navigation, route }) {
     navigation.navigate('Add Screen');
   }
 
+  function doneItem(id) {
+    console.log('@doneItem: ', id);
+
+    firebase
+      .firestore()
+      .collection('todos')
+      .where('id', '==', id)
+      .get()
+      .then(function (querySnapshot) {
+        querySnapshot.forEach(function (doc) {
+          // doc.data() is never undefined for query doc snapshots
+          console.log('@deleteNote:', doc.id, ' => ', doc.data());
+          firebase
+            .firestore()
+            .collection('todos')
+            .doc(doc.id)
+            .update({ done: true });
+        });
+      })
+      .catch(function (error) {
+        console.log('Error getting documents: ', error);
+      });
+  }
+
   // This deletes an individual note
-  function deleteNote(id, item) {
+  function deleteNote(id) {
     // console.log('item', item);
     // console.log('item.id:', id);
     // console.log('Going to delete :' + id);
@@ -86,7 +110,7 @@ export default function NotesScreen({ navigation, route }) {
     firebase
       .firestore()
       .collection('todos')
-      .where('id', '==', item.id)
+      .where('id', '==', id)
       .get()
       .then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
@@ -116,6 +140,8 @@ export default function NotesScreen({ navigation, route }) {
   function renderItem({ item }) {
     console.log('@renderItem', item);
 
+    let textStrikeDone = item.done === true ? 'line-through' : 'none';
+
     return (
       <View
         style={{
@@ -129,11 +155,27 @@ export default function NotesScreen({ navigation, route }) {
         }}
       >
         <TouchableOpacity onPress={() => showNoteId(item.id)}>
-          <Text>{item.title}</Text>
+          <Text
+            style={{
+              textDecorationLine: `${textStrikeDone}`,
+              textDecorationStyle: 'solid',
+              textTransform: 'uppercase',
+            }}
+          >
+            {item.title}
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => deleteNote(item.id, item)}>
-          <Ionicons name='trash' size={16} color='#944' />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', marginRight: 10 }}>
+          <TouchableOpacity
+            style={{ marginRight: 20 }}
+            onPress={() => doneItem(item.id, item)}
+          >
+            <MaterialCommunityIcons name='check-bold' size={22} color='#944' />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => deleteNote(item.id)}>
+            <MaterialCommunityIcons name='delete' size={22} color='#944' />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
