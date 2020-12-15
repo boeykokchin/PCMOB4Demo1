@@ -7,12 +7,12 @@ import {
   TextInput,
 } from 'react-native';
 
-export default function AddScreen({ navigation }) {
+export default function EditScreen({ navigation }) {
   const [text, setText] = useState('');
 
   return (
     <View style={[styles.container, { backgroundColor: 'white' }]}>
-      <Text style={{ fontSize: 24 }}>ADD</Text>
+      <Text style={{ fontSize: 24 }}>EDIT</Text>
       <TextInput
         style={styles.textInput}
         value={text}

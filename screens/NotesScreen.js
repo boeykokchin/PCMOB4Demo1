@@ -35,6 +35,7 @@ export default function NotesScreen({ navigation, route }) {
     const unsubscribe = firebase
       .firestore()
       .collection('todos')
+      .orderBy('done', 'asc')
       .orderBy('id', 'asc')
       .onSnapshot((snapshot) => {
         const updatedNotes = snapshot.docs.map((doc) => doc.data());
