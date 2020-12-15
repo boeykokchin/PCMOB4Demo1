@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import firebase from '../database/firebaseDB';
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   FlatList,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function NotesScreen({ navigation, route }) {
   const [notes, setNotes] = useState([]);
@@ -17,11 +18,11 @@ export default function NotesScreen({ navigation, route }) {
       headerRight: () => (
         <TouchableOpacity onPress={addNote}>
           <Ionicons
-            name="ios-create-outline"
+            name='ios-create-outline'
             size={30}
-            color="black"
+            color='black'
             style={{
-              color: "#f55",
+              color: '#f55',
               marginRight: 10,
             }}
           />
@@ -29,6 +30,19 @@ export default function NotesScreen({ navigation, route }) {
       ),
     });
   });
+
+  useEffect(() => {
+    const unsubscribe = firebase
+      .firestore()
+      .collection('todos')
+      .onSnapshot((snapshot) => {
+        const updatedNotes = snapshot.docs.map((doc) => doc.data());
+        setNotes(updatedNotes);
+      });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   // Monitor route.params for changes and add items to the database
   useEffect(() => {
@@ -38,17 +52,18 @@ export default function NotesScreen({ navigation, route }) {
         done: false,
         id: notes.length.toString(),
       };
+      firebase.firestore().collection('todos').add(newNote);
       setNotes([...notes, newNote]);
     }
   }, [route.params?.text]);
 
   function addNote() {
-    navigation.navigate("Add Screen");
+    navigation.navigate('Add Screen');
   }
 
   // This deletes an individual note
   function deleteNote(id) {
-    console.log("Deleting " + id);
+    console.log('Deleting ' + id);
     // To delete that item, we filter out the item we don't want
     setNotes(notes.filter((item) => item.id !== id));
   }
@@ -61,15 +76,15 @@ export default function NotesScreen({ navigation, route }) {
           padding: 10,
           paddingTop: 20,
           paddingBottom: 20,
-          borderBottomColor: "#ccc",
+          borderBottomColor: '#ccc',
           borderBottomWidth: 1,
-          flexDirection: "row",
-          justifyContent: "space-between",
+          flexDirection: 'row',
+          justifyContent: 'space-between',
         }}
       >
         <Text>{item.title}</Text>
         <TouchableOpacity onPress={() => deleteNote(item.id)}>
-          <Ionicons name="trash" size={16} color="#944" />
+          <Ionicons name='trash' size={16} color='#944' />
         </TouchableOpacity>
       </View>
     );
@@ -80,8 +95,8 @@ export default function NotesScreen({ navigation, route }) {
       <FlatList
         data={notes}
         renderItem={renderItem}
-        style={{ width: "100%" }}
-        keyExtractor={(item) => item.id.toString()}
+        style={{ width: '100%' }}
+        keyExtractor={(item) => item.id}
       />
     </View>
   );
@@ -90,8 +105,8 @@ export default function NotesScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffc",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: '#ffc',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
