@@ -68,15 +68,47 @@ export default function NotesScreen({ navigation, route }) {
         });
       setNotes([...notes, newNote]);
 
-      // firebase.firestore().collection('todos').orderBy('id');
-
       console.log('@useEffect_params_text', notes);
     }
   }, [route.params?.text]);
 
+  useEffect(() => {
+    if ((route.params?.editText, route.params?.key)) {
+      console.log('@useEffect_params_editText', route.params?.editText);
+      console.log('@useEffect_params_editText', route.params?.id);
+
+      firebase
+        .firestore()
+        .collection('todos')
+        .where('id', '==', route.params?.key)
+        .get()
+        .then(function (querySnapshot) {
+          querySnapshot.forEach(function (doc) {
+            // doc.data() is never undefined for query doc snapshots
+            console.log('@editNote: ', doc.id, ' => ', doc.data());
+            firebase
+              .firestore()
+              .collection('todos')
+              .doc(doc.id)
+              .update({ title: `${route.params?.editText}` });
+          });
+        })
+        .catch(function (error) {
+          console.log('Error getting documents: ', error);
+        });
+    }
+  }, [route.params?.editText, route.params?.key]);
+
   function addNote() {
     navigation.navigate('Add Screen');
   }
+
+  const editItem = (item) => {
+    navigation.navigate('Edit Screen', {
+      id: item.id,
+      title: item.title,
+    });
+  };
 
   function doneItem(id) {
     console.log('@doneItem: ', id);
@@ -89,7 +121,7 @@ export default function NotesScreen({ navigation, route }) {
       .then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
           // doc.data() is never undefined for query doc snapshots
-          console.log('@deleteNote:', doc.id, ' => ', doc.data());
+          console.log('@doneItem:', doc.id, ' => ', doc.data());
           firebase
             .firestore()
             .collection('todos')
@@ -169,7 +201,17 @@ export default function NotesScreen({ navigation, route }) {
         <View style={{ flexDirection: 'row', marginRight: 10 }}>
           <TouchableOpacity
             style={{ marginRight: 20 }}
-            onPress={() => doneItem(item.id, item)}
+            onPress={() => editItem(item)}
+          >
+            <MaterialCommunityIcons
+              name='circle-edit-outline'
+              size={22}
+              color='#944'
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ marginRight: 20 }}
+            onPress={() => doneItem(item.id)}
           >
             <MaterialCommunityIcons name='check-bold' size={22} color='#944' />
           </TouchableOpacity>

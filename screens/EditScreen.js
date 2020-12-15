@@ -7,21 +7,23 @@ import {
   TextInput,
 } from 'react-native';
 
-export default function EditScreen({ navigation }) {
-  const [text, setText] = useState('');
+export default function EditScreen({ navigation, route }) {
+  const [editText, setEditText] = useState(`${route.params.title}`);
+
+  let key = route.params.id;
 
   return (
     <View style={[styles.container, { backgroundColor: 'white' }]}>
       <Text style={{ fontSize: 24 }}>EDIT</Text>
       <TextInput
         style={styles.textInput}
-        value={text}
-        onChangeText={(input) => setText(input)}
+        value={editText}
+        onChangeText={(newEditText) => setEditText(newEditText)}
       />
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate('Notes', { text })}
+          onPress={() => navigation.navigate('Notes', { editText, key })}
         >
           <Text style={styles.buttonText}>Save</Text>
         </TouchableOpacity>
