@@ -51,8 +51,15 @@ export default function NotesScreen({ navigation, route }) {
         title: route.params.text,
         done: false,
         id: notes.length.toString(),
+        // id: notes.length,
       };
-      firebase.firestore().collection('todos').add(newNote);
+      firebase
+        .firestore()
+        .collection('todos')
+        .add(newNote)
+        .then(function (docRef) {
+          console.log('Document written with ID: ', docRef.id);
+        });
       setNotes([...notes, newNote]);
     }
   }, [route.params?.text]);
@@ -62,10 +69,38 @@ export default function NotesScreen({ navigation, route }) {
   }
 
   // This deletes an individual note
-  function deleteNote(id) {
-    console.log('Deleting ' + id);
+  function deleteNote(id, item) {
+    // console.log('item', item);
+    // console.log('item.id:', id);
+    // console.log('Going to delete :' + id);
+
+    firebase
+      .firestore()
+      .collection('todos')
+      .where('id', '==', item.id)
+      .get()
+      .then(function (querySnapshot) {
+        querySnapshot.forEach(function (doc) {
+          // doc.data() is never undefined for query doc snapshots
+          console.log(doc.id, ' => ', doc.data());
+          firebase.firestore().collection('todos').doc(doc.id).delete();
+        });
+      })
+      .catch(function (error) {
+        console.log('Error getting documents: ', error);
+      });
+
     // To delete that item, we filter out the item we don't want
-    setNotes(notes.filter((item) => item.id !== id));
+    // setNotes(notes.filter((item) => item.id !== id));
+    // firebase
+    //   .firestore()
+    //   .collection('todos')
+    //   .doc('hnw7YPSOC9BvZJ1Oi8gq')
+    //   .delete();
+  }
+
+  function showNoteId(id) {
+    console.log(id);
   }
 
   // The function to render each row in our FlatList
@@ -82,8 +117,10 @@ export default function NotesScreen({ navigation, route }) {
           justifyContent: 'space-between',
         }}
       >
-        <Text>{item.title}</Text>
-        <TouchableOpacity onPress={() => deleteNote(item.id)}>
+        <TouchableOpacity onPress={() => showNoteId(item.id)}>
+          <Text>{item.title}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => deleteNote(item.id, item)}>
           <Ionicons name='trash' size={16} color='#944' />
         </TouchableOpacity>
       </View>
