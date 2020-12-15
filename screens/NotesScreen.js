@@ -35,9 +35,11 @@ export default function NotesScreen({ navigation, route }) {
     const unsubscribe = firebase
       .firestore()
       .collection('todos')
+      .orderBy('id')
       .onSnapshot((snapshot) => {
         const updatedNotes = snapshot.docs.map((doc) => doc.data());
         setNotes(updatedNotes);
+        console.log('@useEffect_Unsubscribe', updatedNotes);
       });
     return () => {
       unsubscribe();
@@ -58,9 +60,16 @@ export default function NotesScreen({ navigation, route }) {
         .collection('todos')
         .add(newNote)
         .then(function (docRef) {
-          console.log('Document written with ID: ', docRef.id);
+          console.log(
+            '@useEffect_params_text Document written with ID: ',
+            docRef.id
+          );
         });
       setNotes([...notes, newNote]);
+
+      // firebase.firestore().collection('todos').orderBy('id');
+
+      console.log('@useEffect_params_text', notes);
     }
   }, [route.params?.text]);
 
@@ -82,7 +91,7 @@ export default function NotesScreen({ navigation, route }) {
       .then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
           // doc.data() is never undefined for query doc snapshots
-          console.log(doc.id, ' => ', doc.data());
+          console.log('@deleteNote:', doc.id, ' => ', doc.data());
           firebase.firestore().collection('todos').doc(doc.id).delete();
         });
       })
@@ -100,11 +109,13 @@ export default function NotesScreen({ navigation, route }) {
   }
 
   function showNoteId(id) {
-    console.log(id);
+    console.log('@showNoteId: ', id);
   }
 
   // The function to render each row in our FlatList
   function renderItem({ item }) {
+    console.log('@renderItem', item);
+
     return (
       <View
         style={{
