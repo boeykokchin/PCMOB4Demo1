@@ -14,7 +14,7 @@ export default function EditScreen({ navigation, route }) {
 
   return (
     <View style={[styles.container, { backgroundColor: 'white' }]}>
-      <Text style={{ fontSize: 24 }}>EDIT</Text>
+      <Text style={{ fontSize: 24, color: 'green' }}>EDIT</Text>
       <TextInput
         style={styles.textInput}
         value={editText}

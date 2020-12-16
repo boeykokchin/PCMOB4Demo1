@@ -5,14 +5,17 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  LogBox,
 } from 'react-native';
+
+LogBox.ignoreLogs(['Setting a timer']);
 
 export default function AddScreen({ navigation }) {
   const [text, setText] = useState('');
 
   return (
     <View style={[styles.container, { backgroundColor: 'white' }]}>
-      <Text style={{ fontSize: 24 }}>ADD</Text>
+      <Text style={{ fontSize: 24, color: 'blue' }}>ADD</Text>
       <TextInput
         style={styles.textInput}
         value={text}
