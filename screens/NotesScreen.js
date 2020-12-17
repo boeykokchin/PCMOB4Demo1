@@ -66,7 +66,8 @@ export default function NotesScreen({ navigation, route }) {
             docRef.id
           );
         });
-      setNotes([...notes, newNote]);
+      route.params.text = '';
+      // setNotes([...notes, newNote]);
 
       console.log('@useEffect_params_text', notes);
     }
